@@ -1,7 +1,7 @@
 FROM golang:1.12.1-alpine3.9 AS builder
 LABEL maintainer="Brandon McNama <brandonmcnama@outlook.com>"
 
-RUN apk add git ca-certificates
+RUN apk add git
 
 ARG TERRAFORM_VERSION=0.11.13
 
@@ -12,5 +12,7 @@ RUN unzip terraform.zip && \
   go install ./tools/terraform-bundle
 
 FROM alpine:3.9 
+
+RUN apk add ca-certificates
 
 COPY --from=builder /go/bin/terraform-bundle /bin/terraform-bundle
