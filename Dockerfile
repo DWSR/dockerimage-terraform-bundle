@@ -1,6 +1,7 @@
 FROM golang:1.12.1-alpine3.9 AS builder
+LABEL maintainer="Brandon McNama <brandonmcnama@outlook.com>"
 
-RUN apk add git
+RUN apk add git ca-certificates
 
 ARG TERRAFORM_VERSION=0.11.13
 
