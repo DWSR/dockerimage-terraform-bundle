@@ -1,0 +1,45 @@
+= terraform-bundle Docker Image
+
+== Description
+
+This is a Docker image containing
+link:https://github.com/hashicorp/terraform/tree/master/tools/terraform-bundle[terraform-bundle].
+Its intended use is to help create bundles for use in other CI images or for populating local
+workstation provider cache.
+
+== Example
+
+=== Multi-stage build
+
+.Dockerfile
+[source, Dockerfile]
+----
+FROM dwsr/terraform-bundle:0.11.13 AS bundler
+
+# Add a bundle config to the image. See the docs for more information.
+COPY bundle.hcl /bundle.hcl
+
+# Build the bundle and put it in a predictable location. We unzip in this stage so that the bundle
+# is not present in the next stage.
+RUN terraform-bundle package /bundle.hcl && \
+  mkdir -p /tf-providers && \
+  mv terraform_0.11.13-bundle*.zip bundle.zip && \
+  unzip bundle.zip -d /tf-providers
+
+FROM hashicorp/terraform:0.11.13
+
+# Tell Terraform where the providers are and disable fetching missing ones from the internet.
+ENV TF_CLI_ARGS="-plugin-dir=/tf-providers -get-plugins=false"
+
+RUN mkdir -p /tf-providers
+
+# Bring the bundle over from the previous stage.
+COPY --from=bundler /tf-providers/terraform-provider* /tf-providers/
+----
+
+== Motivation
+
+`terraform-bundle` does not have binary releases provided for it (though they are easily
+obtainable if you have Go installed) and Docker containers make an ideal way to consume the binary
+as they are becoming ubiquitous and can be easily leveraged as part of a multi-stage container
+build or as part of a Docker-powered CI system such as GitLab, Circle, or Drone.
