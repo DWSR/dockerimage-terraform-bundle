@@ -3,7 +3,7 @@ LABEL maintainer="Brandon McNama <brandonmcnama@outlook.com>"
 
 RUN apk add git upx binutils
 
-ARG TERRAFORM_VERSION=0.11.13
+ARG TERRAFORM_VERSION=0.11.14
 
 ADD https://github.com/hashicorp/terraform/archive/v${TERRAFORM_VERSION}.zip terraform.zip
 
